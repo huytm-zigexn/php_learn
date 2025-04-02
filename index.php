@@ -1,65 +1,36 @@
 <?php
-  $numbers = [2,3];
-  $scores = [1, ...$numbers, 4];
-  print_r($scores);
+  $prices = [100, 0.1];
+
+  list($buy_price, $tax) = $prices;
+
+  echo "The price is $buy_price and tax is $tax";
+
+  //Using a list to skip array elements
+  $prices = [100, 0.05, 0.1];
+
+  list($buy_price, , $tax) = $prices;
+
+  echo "The price is $buy_price and tax is $tax";
 
 
-  $even = [0, 2, 4, 6];
-  $odds = [1, 3, 5, 7];
-  $numbers = [...$even, ...$odds];
-  print_r($numbers);
-
-  //Using PHP spread operator with a return value of a function call
-  function get_random_numbers()
-  {
-    for ($i = 0; $i < 5; $i++) {
-      $random[] = rand(1, 100);
-    }
-    return $random;
-  }
-
-  $random_numbers = [...get_random_numbers()];
-
-  print_r($random_numbers);
+  //Using the nested list to assign variables
+  $elements = ['body', ['white', 'blue']];
+  list($element, list($bgcolor, $color)) = $elements;
+  var_dump($element, $bgcolor, $color);
 
 
-  //Using PHP spread operator with a generator
-  function even_number() {
-    for ($i = 2; $i < 10; $i += 2) {
-      yield $i;
-    }
-  }
+  //Using a PHP list with an associative array
+  $person = [
+    'first_name' => 'Huy',
+    'last_name' => 'Tran',
+    'age' => 22
+  ];
 
-  $even_nums = [...even_number()];
-  print_r($even_nums);
+  list(
+    'first_name' => $first,
+    'last_name' => $last,
+    'age' => $age
+  ) = $person;
+  var_dump($first, $last, $age);
 
-
-  //Using PHP spread operator with a Traversable object
-  class Animals implements IteratorAggregate 
-  {
-    private $pets = ["dog", "cat", "parrot"];
-    
-    public function getIterator():Traversable
-    {
-      return new ArrayIterator($this -> pets);
-    }
-  }
-
-  $pet = new Animals();
-  $animals = [...$pet];
-  print_r($animals);
-
-
-
-  //Spread operator and named arguments
-  function format_name(string $firstname, string $middlename, string $lastname): string
-  {
-    return $middlename ? "$firstname $middlename $lastname" : "$firstname $lastname";
-  }
-
-  $name1 = ['firstname' => 'Huy', 'middlename' => 'Minh', 'lastname' => 'Tran'];
-  $name2 = ['firstname' => 'Huy', 'middlename' => '', 'lastname' => 'Tran'];
-
-  echo format_name(...$name1) . "<br>";
-  echo format_name(...$name2) . "<br>";
 ?> 
