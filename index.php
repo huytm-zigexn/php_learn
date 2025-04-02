@@ -1,78 +1,142 @@
 <?php
-  $prices = [100, 0.1];
-
-  list($buy_price, $tax) = $prices;
-
-  echo "The price is $buy_price and tax is $tax";
-
-  //Using a list to skip array elements
-  $prices = [100, 0.05, 0.1];
-
-  list($buy_price, , $tax) = $prices;
-
-  echo "The price is $buy_price and tax is $tax";
-
-
-  //Using the nested list to assign variables
-  $elements = ['body', ['white', 'blue']];
-  list($element, list($bgcolor, $color)) = $elements;
-  var_dump($element, $bgcolor, $color);
-
-
-  //Using a PHP list with an associative array
-  $person = [
-    'first_name' => 'Huy',
-    'last_name' => 'Tran',
-    'age' => 22
+  //ksort(): mainly useful for sorting associative arrays. (key sort)
+  $employees = [
+    'john' => [
+      'age' => 24,
+      'title' => 'Front-end Developer'
+    ],
+    'alice' => [
+      'age' => 28,
+      'title' => 'Web Designer'
+    ],
+    'bob' => [
+      'age' => 25,
+      'title' => 'MySQL DBA'
+    ]
   ];
 
-  list(
-    'first_name' => $first,
-    'last_name' => $last,
-    'age' => $age
-  ) = $person;
-  var_dump($first, $last, $age);
+  ksort($employees, SORT_STRING);
+  print_r($employees);
+  echo "<br>";
+
+  //krsort(): is like the ksort() function except that it sorts the keys of an array in descending order
+  krsort($employees, SORT_STRING);
+  print_r($employees);
 
 
+  echo "<br>";
+
+  //usort: to sort an array using a user-defined comparison function (user-defined)
+  //sort numbers
+  $numbers = [2, 1, 3];
+
+  usort($numbers, fn ($x, $y) => $x <=> $y); //sort ascending
+  print_r($numbers);
+
+  echo "<br>";
+
+  usort($numbers, function ($x, $y) { //sort descending
+    if ($x === $y) {
+      return 0;
+    }
+    return $x < $y ? 1 : -1;
+  });
+  print_r($numbers);
+
+  echo "<br>";
+
+  //sort string by length
+  $names = [ 'Alex', 'Peter',  'John' ];
+  usort($names, fn ($x, $y) => strlen($x) <=> strlen($y)); //sort ascending
+  print_r($names);
+
+  echo "<br>";
+
+  usort($names, function($x, $y) {
+    if (strlen($x) === strlen($y)) {
+      return 0;
+    }
+
+    return strlen($x) < strlen($y) ? 1 : -1;
+  });
+  print_r($names);
 
 
-  //ARRAY DESTRUCTING
-  [$buy_price, $tax] = $prices;
+  //sort an array of objects
+  class Person {
+    public $name;
+    public $age;
 
-  echo "The price is $buy_price and tax is $tax";
+    public function __construct(string $name, int $age)
+    {
+      $this->name = $name;
+      $this->age = $age;
+    }
+  }
 
-  //Using a list to skip array elements
-  $prices = [100, 0.05, 0.1];
+  $group = [
+    new Person('Huy', 22),
+    new Person('A', 20),
+    new Person('B', 21)
+  ];
 
-  [$buy_price, , $tax] = $prices;
+  echo "<br>";
 
-  echo "The price is $buy_price and tax is $tax";
+  usort($group, fn ($x, $y) => $x->age <=> $y->age);
+  print_r($group);
 
 
-  //Using the nested list to assign variables
-  $elements = ['body', ['white', 'blue']];
-  [$element, [$bgcolor, $color]] = $elements;
-  var_dump($element, $bgcolor, $color);
+  //Using a static method as a callback
+  class PersonComparer {
+    public static function compare(Person $x, Person $y) {
+      return $x->age <=> $y->age;
+    }
+  }
 
-  [
-    'first_name' => $first,
-    'last_name' => $last,
-    'age' => $age
-  ] = $person;
-  var_dump($first, $last, $age);
-  
+  echo "<br>";
 
-  //Swaping variables
-  $x = 10;
-  $y = 20;
-  [$x, $y] = [$y, $x];
-  echo "<br>" . $x . "<br>" . $y;
+  usort($group, ["PersonComparer", "compare"]);
+  print_r($group);
 
-  //Parsing an array returned from a function
-  [
-    'dirname' => $dirname,
-    'basename' => $basename
-  ] = pathinfo('c:\temp\readme.txt');
+  echo "<br>";
 
-  var_dump($dirname, $basename);
+  //asort(): to sort an associative array and maintain the index association. (associative sort)
+  $mountains = [
+    'K2' => 8611,
+    'Lhotse' => 8516,
+    'Mount Everest' => 8848,
+    'Kangchenjunga' => 8586,
+  ];
+  asort($mountains); //sort ascending
+  print_r($mountains);
+
+  echo "<br>";
+
+  arsort($mountains); //sort descending
+  print_r($mountains);
+
+  echo "<br>";
+  //uasort(): sorts the elements of an associative array with a user-defined comparison function and maintains the index association.
+  //user-defined associative sort
+  $countries = [
+    'China' => ['gdp' => 12.238 , 'gdp_growth' => 6.9],
+    'Germany' => ['gdp' => 3.693 , 'gdp_growth' => 2.22 ],
+    'Japan' => ['gdp' => 4.872 , 'gdp_growth' => 1.71 ],
+    'USA' => ['gdp' => 19.485, 'gdp_growth' => 2.27 ],
+  ];
+
+  uasort($countries, fn ($x, $y) => $x['gdp'] <=> $y['gdp']);
+  foreach($countries as $name => $stat) {
+    echo "{$name} has a GDP of {$stat['gdp']} trillion USD with a gdp growth rate of {$stat['gdp_growth']} <br>";
+  }
+
+
+  //uksort(): to sort an array by keys using a user-defined comparison function. (user-defined key sort)
+  $names = [
+    'c' => 'Charlie',
+    'A' => 'Alex',
+    'b' => 'Bob'
+  ];
+  uksort($names, fn ($x, $y) => strtolower($x) <=> strtolower($y));
+  print_r($names);
 ?> 
