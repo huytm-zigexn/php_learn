@@ -1,49 +1,16 @@
-<!--
-  4 variables:
-    Local
-    Global
-    Static
-    Function params
--->
-
 <?php
-  $message = "hi"; //global var
+  declare(strict_types = 1); //strict types
 
-  function say() {
-    $message = "hello"; //local var
-    echo $message . "<br>";
+  function add (int|float|string $x, int|float|string $y) :int|float|string {
+    return $x + $y;
   }
 
-  echo $message . "<br>";
-  say();
+  echo add(1, 2) . "<br>";
+  echo add(1, 2.5) . "<br>";
+  echo add(1, '2') . "<br>"; //type hints
 
-  function global_say() {
-    global $message; //global var
-    echo $message . "<br>";
+  function super_add (int|float|string $x, int|float|string $y, int|float|string ...$numbers) :int|float|string {
+    return $x + $y + array_sum($numbers);
   }
-
-  global_say();
-
-
-  function counter() {
-    static $count = 1; //static var
-    return $count++;
-  }
-
-  echo counter() . "<br>";
-  echo counter() . "<br>";
-  echo counter() . "<br>";
-
-
-
-  function sum($numbers) { //$numbers are function params
-    $total = 0;
-    foreach($numbers as $num) {
-      $total += $num;
-    }
-    return $total;
-  }
-
-  echo sum([10, 20, 30]);
-
+  echo super_add(1, 2, 3, '4', 5, 6) . "<br>"; //variadic function
 ?> 
