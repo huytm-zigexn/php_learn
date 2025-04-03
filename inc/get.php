@@ -9,9 +9,14 @@
         <small><?php echo $errors['name'] ?? '' ?></small>
     </div>
     <div>
-        <label for="name">Email:</label>
+        <label for="email">Email:</label>
         <input type="text" name="email" id="email" placeholder="Email Address" value="<?php echo $inputs['email'] ?? '' ?>" class="<?php echo isset($errors['email']) ? 'error' : '' ?>">
         <small><?php echo $errors['email'] ?? '' ?></small>
+    </div>
+    <div>
+        <input type="checkbox" name="joinus" id="">
+        <label for="joinus">Join us</label>
+        <small><?php echo $errors['join'] ?? '' ?></small>
     </div>
     <button type="submit">Subscribe</button>
 </form>

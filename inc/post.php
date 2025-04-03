@@ -3,9 +3,12 @@
     const EMAIL_REQUIRED = 'Please enter your email';
     const EMAIL_INVALID = 'Please enter a valid email';
 
-    $name = $_POST['name'];
+    if(filter_has_var(INPUT_POST, 'name'))
+    {
+        $name = $_POST['name'];
+        $inputs['name'] = $name;
+    }
 
-    $inputs['name'] = $name;
     if($name)
     {
         $name = trim($name);
@@ -31,6 +34,17 @@
     else 
     {
         $errors['email'] = EMAIL_REQUIRED;
+    }
+    
+    if(filter_has_var(INPUT_POST, 'joinus')) {
+        $join = $_POST['joinus'];
+        $inputs['join']= $join;
+    }
+    if($join)
+    {
+        echo  'Thank you for joining us!';
+    } else {
+        $errors['join'] = 'To join us, you need to agree to the TOS.';
     }
 ?>
 
