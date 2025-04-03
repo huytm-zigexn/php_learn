@@ -63,3 +63,15 @@ function redirect_with_message(string $message, string $type=FLASH_ERROR, string
     header("Location: $location", true, 303);
     exit;
 }
+
+function format_messages(string $title, array $messages): string
+{
+    $message = "<p>$title</p>";
+    $message .= '<ul>';
+    foreach ($messages as $key => $value) {
+        $message .= "<li>$value</li>";
+    }
+    $message .= '<ul>';
+
+    return $message;
+}

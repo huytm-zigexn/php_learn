@@ -14,46 +14,72 @@ const MAX_SIZE = 5 * 1024 * 1024; //  5MB
 
 const UPLOAD_DIR = __DIR__ . '/uploads';
 
-//Check if RM is POST
-$is_post_request = strtolower($_SERVER['REQUEST_METHOD']) === 'post';
-//Check if file is set in form
-$has_file = isset($_FILES['file']);
 
-if (!$is_post_request || !$has_file) {
+$is_post_request = strtolower($_SERVER['REQUEST_METHOD']) === 'post';
+$has_files = isset($_FILES['files']);
+
+if (!$is_post_request || !$has_files) {
     redirect_with_message('Invalid file upload operation', FLASH_ERROR);
 }
 
-//
-$status = $_FILES['file']['error'];
-$filename = $_FILES['file']['name'];
-$tmp = $_FILES['file']['tmp_name'];
+$files = $_FILES['files'];
+$file_count = count($files['name']);
 
+// validation
+$errors = [];
+for ($i = 0; $i < $file_count; $i++) {
+    // get the uploaded file info
+    $status = $files['error'][$i];
+    $filename = $files['name'][$i];
+    $tmp = $files['tmp_name'][$i];
 
-// an error occurs
-if ($status !== UPLOAD_ERR_OK) {
-    redirect_with_message($messages[$status], FLASH_ERROR);
+    // an error occurs
+    if ($status !== UPLOAD_ERR_OK) {
+        $errors[$filename] = MESSAGES[$status];
+        continue;
+    }
+    // validate the file size
+    $filesize = filesize($tmp);
+
+    if ($filesize > MAX_SIZE) {
+        // construct an error message
+        $message = sprintf("The file %s is %s which is greater than the allowed size %s",
+            $filename,
+            format_filesize($filesize),
+            format_filesize(MAX_SIZE));
+
+        $errors[$filesize] = $message;
+        continue;
+    }
+
+    // validate the file type
+    if (!in_array(get_mime_type($tmp), array_keys(ALLOWED_FILES))) {
+        $errors[$filename] = "The file $filename is not allowed to upload";
+    }
 }
 
-// validate the file size
-$filesize = filesize($tmp);
-if ($filesize > MAX_SIZE) {
-    redirect_with_message('Error! your file size is ' . format_filesize($filesize) . ' , which is bigger than allowed size ' . format_filesize(MAX_SIZE), FLASH_ERROR);
+if ($errors) {
+    redirect_with_message(format_messages('The following errors occurred:',$errors), FLASH_ERROR);
 }
 
-// validate the file type
-$mime_type = get_mime_type($tmp);
-if (!in_array($mime_type, array_keys(ALLOWED_FILES))) {
-    redirect_with_message('The file type is not allowed to upload', FLASH_ERROR);
-}
-// set the filename as the basename + extension
-$uploaded_file = pathinfo($filename, PATHINFO_FILENAME) . '.' . ALLOWED_FILES[$mime_type];
-// new file location
-$filepath = UPLOAD_DIR . '/' . $uploaded_file;
+// move the files
+for($i = 0; $i < $file_count; $i++) {
+    $filename = $files['name'][$i];
+    $tmp = $files['tmp_name'][$i];
+    $mime_type = get_mime_type($tmp);
 
-// move the file to the upload dir
-$success = move_uploaded_file($tmp, $filepath);
-if ($success) {
-    redirect_with_message('The file was uploaded successfully.', FLASH_SUCCESS);
+    // set the filename as the basename + extension
+    $uploaded_file = pathinfo($filename, PATHINFO_FILENAME) . '.' . ALLOWED_FILES[$mime_type];
+    // new filepath
+    $filepath = UPLOAD_DIR . '/' . $uploaded_file;
+
+    // move the file to the upload dir
+    $success = move_uploaded_file($tmp, $filepath);
+    if(!$success) {
+        $errors[$filename] = "The file $filename was failed to move.";
+    }
 }
 
-redirect_with_message('Error moving the file to the upload folder.', FLASH_ERROR);
+$errors ?
+    redirect_with_message(format_messages('The following errors occurred:',$errors), FLASH_ERROR) :
+    redirect_with_message('All the files were uploaded successfully.', FLASH_SUCCESS);
