@@ -1,82 +1,61 @@
 <?php
-    $selected_toppings = filter_input(
-        INPUT_POST,
-        'pizza_toppings',
-        FILTER_DEFAULT,
-        FILTER_REQUIRE_ARRAY
-    ) ?? [];
 
-    if($selected_toppings)
-    {
-        $selected_toppings = array_map('htmlspecialchars', $selected_toppings);
-        $total = 0;
-        $toppings = array_keys($pizza_toppings);
-        $_SESSION['selected_toppings'] = [];
-        foreach ($selected_toppings as $topping)
-        {
-            if(in_array($topping, $toppings))
-            {
-                $_SESSION['selected_toppings'][] = $topping;
-                $total += $pizza_toppings[$topping];
-            }
-        }
-    } else {
-        $errors['topping'] = "You didn't select any pizza toppings.";
-    }
+$token = filter_input(INPUT_POST, 'token', FILTER_DEFAULT);
+$token = htmlspecialchars($token);
 
+if (!$token || $token !== $_SESSION['token']) {
+    // show an error message
+    echo '<p class="error">Error: invalid form submission</p>';
+    // return 405 http status code
+    header($_SERVER['SERVER_PROTOCOL'] . ' 405 Method Not Allowed');
+    exit;
+}
 
-    $crust = filter_input(
-        INPUT_POST,
-        'crust',
-        FILTER_DEFAULT
+// Validate amount
+$amount = filter_input(INPUT_POST, 'amount', FILTER_SANITIZE_NUMBER_INT);
+$inputs['amount'] = $amount;
+
+if ($amount) {
+    $amount = filter_var(
+        $amount,
+        FILTER_VALIDATE_INT,
+        ['options' => ['min_range' => 1, 'max_range' => 5000]]
     );
-    if($crust && array_key_exists($crust, $crusts)) {
-        $crust = htmlspecialchars($crust);
-        $_SESSION['crust'][] = $crust;
-    } else {
-        $errors['crust'] = 'Please select pizza crust';
-    }
 
-    $checkout_method = filter_input(
-        INPUT_POST,
-        'checkout_methods',
-        FILTER_DEFAULT
-    );
-    if($checkout_method && array_key_exists($checkout_method, $checkout_methods))
-    {
-        $checkout_method = htmlspecialchars($checkout_method);
-        $_SESSION['method'][] = $checkout_method;
-    } else {
-        $errors['method'] = "Please choose a checkout method";
+    if (!$amount) {
+        $errors['amount'] = 'Please enter a valid amount (from $1 to $5000)';
     }
+} else {
+    $errors['amount'] = 'Please enter the transfered amount.';
+}
+
+// validate account (simple)
+$recipient_account = filter_input(INPUT_POST, 'recipient_account', FILTER_SANITIZE_NUMBER_INT);
+
+$inputs['recipient_account'] = $recipient_account;
+
+if ($recipient_account) {
+    $recipient_account = filter_var($recipient_account, FILTER_VALIDATE_INT);
+
+    if (!$recipient_account) {
+        $errors['recipient_account'] = 'Please enter a valid recipient account';
+    }
+    // validate the recipient account against the database
+    // ...
+} else {
+    $errors['recipient_account'] = 'Please enter the recipient account.';
+}
 ?>
 
-<?php if ($_SESSION['selected_toppings'] && $checkout_method && $crust) : ?>
-    
-    <h1 style="text-align: center;">Order Summary</h1>
-    <ul style="margin-left: 120px;">
-        <?php foreach ($_SESSION['selected_toppings'] as $topping) : ?>
-            <li>
-                <span><?php echo ucfirst($topping) ?></span>
-                <span><?php echo '$' . $pizza_toppings[$topping] ?></span>
-            </li>
-        <?php endforeach ?>
+<?php if (!$errors) : ?>
+	<section>
+		<div class="circle">
+			<div class="check"></div>
+		</div>
 
-        <li class="total"><span>Total</span><span><?php echo '$' . $total ?></span></li>
-        <p>You chose the <?php echo $checkout_method ?> method.</p>
+		<h1 class="message">You've transfered</h1>
+		<h2 class="amount">$<?= $amount ?></h2>
 
-        <p>You chose: <?php echo ucfirst($crust) ?></p>
-    </ul>
-<?php elseif(!$checkout_method && !$_SESSION['selected_toppings'] && !$crust): ?>
-    <p>Please choose a checkout method and select pizza toppings and crust</p>
-<?php elseif(!$_SESSION['selected_toppings']) : ?>
-    <p>You didn't select any pizza toppings.</p>
-<?php elseif(!$crust) : ?>
-    <p>You didn't select any pizza crusts.</p>
-<?php else :?>
-    <p>Please choose a checkout method</p>
+		<a href="<?= htmlspecialchars($_SERVER['PHP_SELF']) ?>" rel="prev">Done</a>
+	</section>
 <?php endif ?>
-
-<menu style="text-align: center;">
-    <a class="btn" href="<?php htmlentities($_SERVER['PHP_SELF']) ?>" title="Back to the form">Change Toppings</a>
-</menu>
