@@ -1,0 +1,19 @@
+li {
+    list-style: none;
+}
+
+main {
+    min-width: 500px;
+    background-color: aliceblue;
+    padding: 40px;
+    border-radius: 10px;
+    margin-top: 100px;
+}
+
+.center {
+    /* text-align: center; */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(135, 135, 135);
+}

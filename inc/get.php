@@ -1,22 +1,34 @@
 <form action="<?php echo htmlspecialchars($_SERVER['PHP_SELF']) ?>" method="post">
-    <header>
-        <h1>Get FREE Updates</h1>
-        <p>Join us for FREE to get email updates!</p>
-    </header>
-    <div>
-        <label for="name">Name:</label>
-        <input type="text" name="name" id="name" placeholder="Full Name" value="<?php echo $inputs['name'] ?? '' ?>" class="<?php echo isset($errors['name']) ? 'error' : ''  ?>">
-        <small><?php echo $errors['name'] ?? '' ?></small>
-    </div>
-    <div>
-        <label for="email">Email:</label>
-        <input type="text" name="email" id="email" placeholder="Email Address" value="<?php echo $inputs['email'] ?? '' ?>" class="<?php echo isset($errors['email']) ? 'error' : '' ?>">
-        <small><?php echo $errors['email'] ?? '' ?></small>
-    </div>
-    <div>
-        <input type="checkbox" name="joinus" id="">
-        <label for="joinus">Join us</label>
-        <small><?php echo $errors['join'] ?? '' ?></small>
-    </div>
-    <button type="submit">Subscribe</button>
+    <h1>Please select your pizza toppings:</h1>
+    <ul>
+        <?php foreach($pizza_toppings as $topping => $price): ?>
+            <li>
+                <div style="display: flex;">
+                    <input type="checkbox" name="pizza_toppings[]" value="<?php echo $topping ?>" id="pizza_topping_<?php echo $topping ?>" <?php echo checked($topping, $_SESSION['selected_toppings'] ?? []) ?> />
+                    <label for="pizza_topping_<?php echo $topping ?>"><?php echo ucfirst($topping) ?></label>
+                    <span><?php echo '$' . $price ?></span>
+                </div>
+            </li>
+        <?php endforeach ?>
+    </ul>
+    <h1>Please select pizza crust:</h1>
+    <select name="crust" id="crust">
+        <option value="">Select pizza crust</option>
+        <?php foreach($crusts as $key => $value): ?>
+            <li>
+                <option <?php echo selected($key, $_SESSION['crust'] ?? '') ?> value="<?php echo $key ?>"><?php echo $value ?></option>
+            </li>
+        <?php endforeach ?>
+    </select>
+    <h1>Please choose checkout method:</h1>
+    <ul>
+        <?php foreach($checkout_methods as $key => $value): ?>
+            <li>
+                <input type="radio" name="checkout_methods" value="<?php echo $key ?>" <?php echo checked($key, $_SESSION['method'] ?? '') ?>>
+                <label for="checkout_method_<?php echo $key ?>"><?php echo ucfirst($value) ?></label>
+            </li>
+        <?php endforeach ?>
+    </ul>
+
+    <button type="submit">Order now</button>
 </form>

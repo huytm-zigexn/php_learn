@@ -1,63 +1,82 @@
 <?php
-    const NAME_REQUIRED = 'Please enter your name';
-    const EMAIL_REQUIRED = 'Please enter your email';
-    const EMAIL_INVALID = 'Please enter a valid email';
+    $selected_toppings = filter_input(
+        INPUT_POST,
+        'pizza_toppings',
+        FILTER_DEFAULT,
+        FILTER_REQUIRE_ARRAY
+    ) ?? [];
 
-    if(filter_has_var(INPUT_POST, 'name'))
+    if($selected_toppings)
     {
-        $name = $_POST['name'];
-        $inputs['name'] = $name;
-    }
-
-    if($name)
-    {
-        $name = trim($name);
-        if ($name === '')
+        $selected_toppings = array_map('htmlspecialchars', $selected_toppings);
+        $total = 0;
+        $toppings = array_keys($pizza_toppings);
+        $_SESSION['selected_toppings'] = [];
+        foreach ($selected_toppings as $topping)
         {
-            $errors['name'] = NAME_REQUIRED;
+            if(in_array($topping, $toppings))
+            {
+                $_SESSION['selected_toppings'][] = $topping;
+                $total += $pizza_toppings[$topping];
+            }
         }
-    }
-    else
-    {
-        $errors['name'] = NAME_REQUIRED;
+    } else {
+        $errors['topping'] = "You didn't select any pizza toppings.";
     }
 
-    $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_EMAIL);
-    $inputs['email'] = $email;
-    if($email)
-    {
-        $email = filter_var($email, FILTER_VALIDATE_EMAIL);
-        if ($email === false) {
-            $errors['email'] = EMAIL_INVALID;
-        }
-    }
-    else 
-    {
-        $errors['email'] = EMAIL_REQUIRED;
-    }
-    
-    if(filter_has_var(INPUT_POST, 'joinus')) {
-        $join = $_POST['joinus'];
-        $inputs['join']= $join;
-    }
-    if($join)
-    {
-        echo  'Thank you for joining us!';
+
+    $crust = filter_input(
+        INPUT_POST,
+        'crust',
+        FILTER_DEFAULT
+    );
+    if($crust && array_key_exists($crust, $crusts)) {
+        $crust = htmlspecialchars($crust);
+        $_SESSION['crust'][] = $crust;
     } else {
-        $errors['join'] = 'To join us, you need to agree to the TOS.';
+        $errors['crust'] = 'Please select pizza crust';
+    }
+
+    $checkout_method = filter_input(
+        INPUT_POST,
+        'checkout_methods',
+        FILTER_DEFAULT
+    );
+    if($checkout_method && array_key_exists($checkout_method, $checkout_methods))
+    {
+        $checkout_method = htmlspecialchars($checkout_method);
+        $_SESSION['method'][] = $checkout_method;
+    } else {
+        $errors['method'] = "Please choose a checkout method";
     }
 ?>
 
-<?php if (count($errors) === 0) : ?>
-    <section>
-        <h2>
-            Thanks <?php echo htmlspecialchars($name) ?> for your subscription!
-        </h2>
-        <p>Please follow the steps below to complete your subscription:</p>
-        <ol>
-            <li>Check your email (<?php echo htmlspecialchars($email) ?>) - Find the message sent from webmaster@phptutorial.net</li>
-            <li>Click to confirm - Click on the link in the email to confirm your subscription.</li>
-        </ol>
-    </section>
+<?php if ($_SESSION['selected_toppings'] && $checkout_method && $crust) : ?>
+    
+    <h1 style="text-align: center;">Order Summary</h1>
+    <ul style="margin-left: 120px;">
+        <?php foreach ($_SESSION['selected_toppings'] as $topping) : ?>
+            <li>
+                <span><?php echo ucfirst($topping) ?></span>
+                <span><?php echo '$' . $pizza_toppings[$topping] ?></span>
+            </li>
+        <?php endforeach ?>
 
+        <li class="total"><span>Total</span><span><?php echo '$' . $total ?></span></li>
+        <p>You chose the <?php echo $checkout_method ?> method.</p>
+
+        <p>You chose: <?php echo ucfirst($crust) ?></p>
+    </ul>
+<?php elseif(!$checkout_method && !$_SESSION['selected_toppings'] && !$crust): ?>
+    <p>Please choose a checkout method and select pizza toppings and crust</p>
+<?php elseif(!$_SESSION['selected_toppings']) : ?>
+    <p>You didn't select any pizza toppings.</p>
+<?php elseif(!$crust) : ?>
+    <p>You didn't select any pizza crusts.</p>
+<?php else :?>
+    <p>Please choose a checkout method</p>
 <?php endif ?>
+
+<menu style="text-align: center;">
+    <a class="btn" href="<?php htmlentities($_SERVER['PHP_SELF']) ?>" title="Back to the form">Change Toppings</a>
+</menu>
