@@ -2,79 +2,50 @@
 
 class BankAccount
 {
-    public float $balance = 0;
-
-    public function __construct(float $balance)
+    function __construct(private $balance)
     {
-        $this->balance = $balance;
+        
+    }
+
+    public function getBalance()
+    {
+        return $this->balance;
+    }
+
+    public function deposit($amount)
+    {
+        if ($amount > 0) {
+            $this->balance += $amount;
+        }
+
+        return $this;
     }
 }
 
-$account1 = new BankAccount(0);
-var_dump($account1);
-$account = new BankAccount(100.5);
-var_dump($account);
-
-
-//Readonly-properties
-class UserOld
+class SavingAccount extends BankAccount
 {
-    public readonly string $username;
-
-    // public function __construct(string $username)
-    // {
-    //     $this->username = $username;
-    // }
-    public function setUserName(string $username)
+    private $interestRate;
+    public function __construct($balance, $interestRate)
     {
-        $this->username = $username;
+        parent:: __construct($balance);
+        $this->interestRate = $interestRate;
+    }
+
+    public function setInterestRate($interestRate)
+	{
+		$this->interestRate = $interestRate;
+	}
+
+    public function addInterest()
+    {
+        // calculate interest
+        $interest = $this->interestRate * $this->getBalance();
+        // deposit interest to the balance
+        $this->deposit($interest);
     }
 }
 
-// $user = new User('Huy');
-// var_dump($user);
-$user = new UserOld();
-$user->setUserName('Huy');
-//$user->setUserName('Hi'); //error if setUserName the second time
-var_dump($user);
-
-
-//Example with User and UserProfile
-class UserProfile
-{
-    public function __construct(private string $name, private string $phone)
-    {
-    }
-
-    public function changePhoneNumber($phone) {
-        $this->phone = $phone;
-    }
-}
-
-class User
-{
-    private readonly string $username;
-    private readonly UserProfile $profile;
-
-    public function __construct(string $username)
-    {
-        $this->username = $username;
-    }
-
-    public function setProfile(UserProfile $profile)
-    {
-        $this->profile = $profile;
-    }
-
-    public function profile(): UserProfile
-    {
-        return $this->profile;
-    }
-}
-
-
-$user = new User('huytm');
-$user->setProfile(new UserProfile('Tran Minh Huy', '0823749143'));
-var_dump($user);
-$user->profile()->changePhoneNumber('0961367308');
-var_dump($user);
+$account = new SavingAccount(100, 0.1);
+echo $account->getBalance() . "<br>";
+$account->addInterest();
+echo $account->getBalance();
