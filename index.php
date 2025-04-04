@@ -1,47 +1,28 @@
 <?php
 
-class App
+
+require 'src/Model/Customer.php';
+require 'src/Model/Product.php';
+require 'src/Database/Logger.php';
+require 'src/Utils/Logger.php';
+
+use php_learn\Model\{Customer, Product};
+
+use php_learn\Utils\Logger;
+use php_learn\Database\Logger as DatabaseLogger;
+
+$customer = new Customer('Bob');
+
+echo $customer->getName();
+
+$product = new Product();
+
+$loggers = [
+    new Logger(),
+    new DatabaseLogger()
+];
+
+foreach($loggers as $log)
 {
-    private static $app = null;
-
-    private function __construct()
-    {
-    }
-
-    public static function get(): App
-    {
-        if(!self::$app)
-        {
-            self::$app = new App();
-        }
-
-        return self::$app;
-    }
-
-    public function bootstrap(): void
-	{
-		echo 'App is bootstrapping...';
-	}
+    $log->log('Hello');
 }
-
-$app = App::get();
-$app->bootstrap();
-
-
-//Late Static Binding
-class Model
-{
-    protected static $tableName = 'Model';
-
-    public static function getTableName()
-    {
-        return static::$tableName;
-    }
-}
-
-class User extends Model
-{
-    protected static $tableName = 'User';
-}
-
-echo User::getTableName();
