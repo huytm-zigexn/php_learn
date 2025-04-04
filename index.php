@@ -1,35 +1,29 @@
 <?php
 
-class Customer
+abstract class Dumper
 {
-    protected $name;
+    abstract public function dump($data);
+}
 
-    public function __construct($name)
+class WebDumper extends Dumper
+{
+    public function dump($data)
     {
-        $this->name = $name;
-    }
-
-    protected function format()
-    {
-        return ucwords($this->name);
-    }
-
-    public function getName()
-    {
-        return $this->format($this->name);
+        echo '<pre>';
+        var_dump($data);
+        echo '</pre>';
     }
 }
 
-class VIP extends Customer
+class ConsoleDumper extends Dumper
 {
-    protected function format()
+    public function dump($data)
     {
-        return strtoupper($this->name);    
+        var_dump($data);
     }
 }
 
-$bob = new Customer('bob allen');
-echo $bob->getName() . "<br>";
-
-$alex = new VIP('alex ferguson');
-echo $alex->getName();
+$webDumper = new WebDumper();
+$webDumper->dump('HELLO');
+$consoleDumper = new ConsoleDumper();
+$consoleDumper->dump('HELLO');
