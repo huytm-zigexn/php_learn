@@ -1,51 +1,35 @@
 <?php
 
-class BankAccount
+class Robot
 {
-    function __construct(private $balance)
+    public function greeting()
     {
-        
+        return 'Hello!';
     }
 
-    public function getBalance()
+    final public function id()
     {
-        return $this->balance;
-    }
-
-    public function deposit($amount)
-    {
-        if ($amount > 0) {
-            $this->balance += $amount;
-        }
-
-        return $this;
+        return uniqid();
     }
 }
 
-class SavingAccount extends BankAccount
+class Android extends Robot
 {
-    private $interestRate;
-    public function __construct($balance, $interestRate)
+    public function greeting()
     {
-        parent:: __construct($balance);
-        $this->interestRate = $interestRate;
+        //return 'Hello, I am Android!';    Cach 1
+        $greeting = parent::greeting();
+        return $greeting . " I am Android";
     }
 
-    public function setInterestRate($interestRate)
-	{
-		$this->interestRate = $interestRate;
-	}
-
-    public function addInterest()
+    public function id() //with the 'final' in parent's method, can't overriding in chid class.
     {
-        // calculate interest
-        $interest = $this->interestRate * $this->getBalance();
-        // deposit interest to the balance
-        $this->deposit($interest);
+        return uniqid('Android-');
     }
 }
 
-$account = new SavingAccount(100, 0.1);
-echo $account->getBalance() . "<br>";
-$account->addInterest();
-echo $account->getBalance();
+$robot = new Robot();
+echo $robot->greeting() . "<br>";
+
+$android = new Android();
+echo $android->greeting();
