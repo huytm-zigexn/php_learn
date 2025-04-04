@@ -1,35 +1,35 @@
 <?php
 
-class Robot
+class Customer
 {
-    public function greeting()
+    protected $name;
+
+    public function __construct($name)
     {
-        return 'Hello!';
+        $this->name = $name;
     }
 
-    final public function id()
+    protected function format()
     {
-        return uniqid();
+        return ucwords($this->name);
+    }
+
+    public function getName()
+    {
+        return $this->format($this->name);
     }
 }
 
-class Android extends Robot
+class VIP extends Customer
 {
-    public function greeting()
+    protected function format()
     {
-        //return 'Hello, I am Android!';    Cach 1
-        $greeting = parent::greeting();
-        return $greeting . " I am Android";
-    }
-
-    public function id() //with the 'final' in parent's method, can't overriding in chid class.
-    {
-        return uniqid('Android-');
+        return strtoupper($this->name);    
     }
 }
 
-$robot = new Robot();
-echo $robot->greeting() . "<br>";
+$bob = new Customer('bob allen');
+echo $bob->getName() . "<br>";
 
-$android = new Android();
-echo $android->greeting();
+$alex = new VIP('alex ferguson');
+echo $alex->getName();
