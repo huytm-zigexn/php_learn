@@ -1,48 +1,78 @@
 <?php
 
-interface Logger
+abstract class Person
 {
-    public function log($message);
+    abstract public function greet();
 }
 
-class FileLogger implements Logger
+class English extends Person
 {
-    private $handle;
-
-	private $logFile;
-
-	public function __construct($filename, $mode = 'a')
-	{
-		$this->logFile = $filename;
-		// open log file for append
-		$this->handle = fopen($filename, $mode)
-				or die('Could not open the log file');
-	}
-
-	public function log($message)
-	{
-		$message = date('F j, Y, g:i a') . ': ' . $message . "\n";
-		fwrite($this->handle, $message);
-	}
-
-	public function __destruct()
-	{
-		if ($this->handle) {
-			fclose($this->handle);
-		}
-	}
-}
-
-class DatabaseLogger implements Logger
-{
-    public function log($message)
+    public function greet()
     {
-        echo sprintf('Log %s to the database', $message);
+        return 'Hello';
     }
 }
 
-$loggers = [new FileLogger('./log.txt'), new DatabaseLogger()];
-foreach ($loggers as $logger)
+class German extends Person
 {
-    $logger->log('Log message');
+    public function greet()
+    {
+        return 'Hallo';
+    }
 }
+
+class French extends Person
+{
+    public function greet()
+    {
+        return 'Bonjour';
+    }
+}
+
+function greeting ($people)
+{
+    foreach ($people as $person)
+    {
+        echo $person->greet() . "<br>";
+    }
+}
+
+$people = [
+	new English(),
+	new German(),
+	new French()
+];
+
+greeting($people);
+
+//polymorphism using interface
+interface Greeting
+{
+    public function greet();
+}
+
+class English1 implements Greeting
+{
+    public function greet()
+    {
+        return 'Hello';
+    }
+}
+
+class German1 implements Greeting
+{
+    public function greet()
+    {
+        return 'Hallo';
+    }
+}
+
+class France1 implements Greeting
+{
+    public function greet()
+    {
+        return 'Bonjour';
+    }
+}
+
+greeting($people);
