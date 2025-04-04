@@ -1,78 +1,40 @@
 <?php
 
-abstract class Person
+trait Reader
 {
-    abstract public function greet();
-}
-
-class English extends Person
-{
-    public function greet()
+    public function read($source)
     {
-        return 'Hello';
+        echo sprintf('Read from %s <br>', $source);
     }
 }
 
-class German extends Person
+trait Writer
 {
-    public function greet()
+    public function write($destination)
     {
-        return 'Hallo';
+        echo sprintf('Write to %s <br>', $destination);
     }
 }
 
-class French extends Person
+trait Copier
 {
-    public function greet()
+    use Reader, Writer;
+    public function copy($source, $destination)
     {
-        return 'Bonjour';
+        $this->read($source);
+        $this->write($destination);
     }
 }
 
-function greeting ($people)
+class FileUtil
 {
-    foreach ($people as $person)
+    use Copier;
+
+    public function copyFile($source, $destination)
     {
-        echo $person->greet() . "<br>";
+        $this->copy($source, $destination);
     }
 }
 
-$people = [
-	new English(),
-	new German(),
-	new French()
-];
-
-greeting($people);
-
-//polymorphism using interface
-interface Greeting
-{
-    public function greet();
-}
-
-class English1 implements Greeting
-{
-    public function greet()
-    {
-        return 'Hello';
-    }
-}
-
-class German1 implements Greeting
-{
-    public function greet()
-    {
-        return 'Hallo';
-    }
-}
-
-class France1 implements Greeting
-{
-    public function greet()
-    {
-        return 'Bonjour';
-    }
-}
-
-greeting($people);
+$file = new FileUtil();
+$file->copyFile('a.txt', 'b.txt');
