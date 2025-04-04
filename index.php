@@ -1,40 +1,47 @@
 <?php
 
-trait Reader
+class App
 {
-    public function read($source)
+    private static $app = null;
+
+    private function __construct()
     {
-        echo sprintf('Read from %s <br>', $source);
+    }
+
+    public static function get(): App
+    {
+        if(!self::$app)
+        {
+            self::$app = new App();
+        }
+
+        return self::$app;
+    }
+
+    public function bootstrap(): void
+	{
+		echo 'App is bootstrapping...';
+	}
+}
+
+$app = App::get();
+$app->bootstrap();
+
+
+//Late Static Binding
+class Model
+{
+    protected static $tableName = 'Model';
+
+    public static function getTableName()
+    {
+        return static::$tableName;
     }
 }
 
-trait Writer
+class User extends Model
 {
-    public function write($destination)
-    {
-        echo sprintf('Write to %s <br>', $destination);
-    }
+    protected static $tableName = 'User';
 }
 
-trait Copier
-{
-    use Reader, Writer;
-    public function copy($source, $destination)
-    {
-        $this->read($source);
-        $this->write($destination);
-    }
-}
-
-class FileUtil
-{
-    use Copier;
-
-    public function copyFile($source, $destination)
-    {
-        $this->copy($source, $destination);
-    }
-}
-
-$file = new FileUtil();
-$file->copyFile('a.txt', 'b.txt');
+echo User::getTableName();
