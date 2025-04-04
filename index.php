@@ -1,29 +1,48 @@
 <?php
 
-abstract class Dumper
+interface Logger
 {
-    abstract public function dump($data);
+    public function log($message);
 }
 
-class WebDumper extends Dumper
+class FileLogger implements Logger
 {
-    public function dump($data)
+    private $handle;
+
+	private $logFile;
+
+	public function __construct($filename, $mode = 'a')
+	{
+		$this->logFile = $filename;
+		// open log file for append
+		$this->handle = fopen($filename, $mode)
+				or die('Could not open the log file');
+	}
+
+	public function log($message)
+	{
+		$message = date('F j, Y, g:i a') . ': ' . $message . "\n";
+		fwrite($this->handle, $message);
+	}
+
+	public function __destruct()
+	{
+		if ($this->handle) {
+			fclose($this->handle);
+		}
+	}
+}
+
+class DatabaseLogger implements Logger
+{
+    public function log($message)
     {
-        echo '<pre>';
-        var_dump($data);
-        echo '</pre>';
+        echo sprintf('Log %s to the database', $message);
     }
 }
 
-class ConsoleDumper extends Dumper
+$loggers = [new FileLogger('./log.txt'), new DatabaseLogger()];
+foreach ($loggers as $logger)
 {
-    public function dump($data)
-    {
-        var_dump($data);
-    }
+    $logger->log('Log message');
 }
-
-$webDumper = new WebDumper();
-$webDumper->dump('HELLO');
-$consoleDumper = new ConsoleDumper();
-$consoleDumper->dump('HELLO');
